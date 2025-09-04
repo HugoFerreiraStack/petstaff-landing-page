@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color primary = Color(0xFFA664F7); // rosa principal
-  static const Color secondary = Color(0xFFB134BE); // rosa claro
+  static const Color secondary = Color(0xFF330072); // rosa claro
   static const Color tertiary = Color(0xFF650C2D); // rosa escuro
   // static const Color backgroundPrimary = Color.fromARGB(255, 255, 235, 242);
   // static const Color backgroundPrimary = Color(0xFFFDF4F7);

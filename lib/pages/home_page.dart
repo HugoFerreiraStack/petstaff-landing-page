@@ -1,66 +1,7 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_svg/svg.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:landing/core/theme/app_colors.dart';
-
-// class HomePage extends StatelessWidget {
-//   const HomePage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             const Icon(Icons.pets, size: 100, color: AppColors.secondary),
-//             const SizedBox(height: 20),
-//             const Text(
-//               'Bem-vindo ao PetStaff!',
-//               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-//             ),
-//             Image.asset(
-//               'assets/images/logo_pet.png',
-//               width: 120,
-//               height: 120,
-//               fit: BoxFit.contain,
-//             ),
-//             SvgPicture.asset('assets/images/game_kiss.svg'),
-//             const SizedBox(height: 10),
-//             const Text(
-//               'Sua plataforma completa para gestão de pets',
-//               style: TextStyle(fontSize: 16, color: AppColors.tertiary),
-//             ),
-//             const SizedBox(height: 40),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               children: [
-//                 ElevatedButton.icon(
-//                   onPressed: () => context.go('/about'),
-//                   icon: const Icon(Icons.info_outline),
-//                   label: const Text('Sobre'),
-//                 ),
-//                 ElevatedButton.icon(
-//                   onPressed: () => context.go('/contact'),
-//                   icon: const Icon(Icons.contact_mail),
-//                   label: const Text('Contato'),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:landing/core/app_strings.dart';
 import 'package:landing/core/theme/app_colors.dart';
 import 'package:landing/pages/main_page.dart';
-
-// Assumo que você já tem AppColors.primary / AppColors.secondary definidos.
-// Assumo também que MainPage.kCompactBreakpoint existe (static const double = 800).
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -86,11 +27,6 @@ class HomePage extends StatelessWidget {
   }
 }
 
-// =====================================================
-// 1) HERO (container primary, full width, padding 50/20)
-//    - Largo: logo à esquerda, título/descrição à direita (brancos)
-//    - Compacto: logo em cima, título abaixo, descrição abaixo
-// =====================================================
 class _HeroSection extends StatelessWidget {
   const _HeroSection({required this.isCompact});
   final bool isCompact;
@@ -168,104 +104,266 @@ class _HeroSection extends StatelessWidget {
   }
 }
 
-// =====================================================
-// 2) PADDING(20) com 2 QUADRADOS flexíveis
-//    - Esquerda: fundo preto, texto branco e 2 imagens abaixo do texto
-//    - Direita: fundo branco, texto com AppColors.secondary
-//    - < 800: empilha (preto em cima, branco embaixo)
-// =====================================================
-class _SquaresSection extends StatelessWidget {
+class _SquaresSection extends StatefulWidget {
   const _SquaresSection({required this.isCompact});
   final bool isCompact;
 
   @override
-  Widget build(BuildContext context) {
-    final gap = isCompact
-        ? const SizedBox(height: 16)
-        : const SizedBox(width: 16);
+  State<_SquaresSection> createState() => _SquaresSectionState();
+}
 
-    Widget blackSquare() {
-      return AspectRatio(
-        aspectRatio: 1,
-        child: Container(
-          color: Colors.black,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Texto do quadrado esquerdo',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 12,
-                runSpacing: 12,
+class _SquaresSectionState extends State<_SquaresSection> {
+  final GlobalKey _whiteKey = GlobalKey();
+  final GlobalKey _blackKey = GlobalKey();
+
+  double? _whiteMeasuredH;
+  double? _blackMeasuredH;
+  double? _lastCardWidth;
+  bool? _lastCompact;
+
+  static const double _gap = 16;
+
+  void _scheduleMeasure() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final hW = _whiteKey.currentContext?.size?.height;
+      final hB = _blackKey.currentContext?.size?.height;
+
+      if (hW != null && hW != _whiteMeasuredH) {
+        setState(() => _whiteMeasuredH = hW);
+      }
+      if (hB != null && hB != _blackMeasuredH) {
+        setState(() => _blackMeasuredH = hB);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black,
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final bool isCompact = widget.isCompact;
+
+          // Paddings conforme pedido
+          final double sectionPad = isCompact ? 0 : 0; // externo da seção
+          final double innerPad = isCompact ? 30 : 80; // interno de cada card
+
+          // largura útil (após o padding externo)
+          final double innerWidth = (c.maxWidth - sectionPad * 2).clamp(
+            0,
+            double.infinity,
+          );
+
+          // largura de cada card
+          final double cardWidth = isCompact
+              ? innerWidth
+              : (innerWidth - _gap) / 2;
+
+          // reset de medição quando muda o modo (compact) ou a largura
+          if (_lastCardWidth != cardWidth || _lastCompact != isCompact) {
+            _lastCardWidth = cardWidth;
+            _lastCompact = isCompact;
+            _whiteMeasuredH = null;
+            _blackMeasuredH = null;
+          }
+
+          // altura alvo: maior entre as duas medidas; na 1ª pintura ainda é null
+          final double? fixedHeight =
+              (_whiteMeasuredH != null || _blackMeasuredH != null)
+              ? [
+                  (_whiteMeasuredH ?? 0),
+                  (_blackMeasuredH ?? 0),
+                ].reduce((a, b) => a > b ? a : b)
+              : null;
+
+          _scheduleMeasure();
+
+          Widget blackCard({Key? key}) {
+            final content = Container(
+              key: key,
+              width: cardWidth, // width priorizado
+              padding: EdgeInsets.all(innerPad),
+              color: Colors.black,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Text(
+                    AppStrings.homePageBlackSquare,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 30),
                   Image.asset(
-                    'assets/logo_pet.png',
-                    height: 64,
+                    AppStrings.pathGooglePlay,
+                    height: 46,
                     fit: BoxFit.contain,
                   ),
                   Image.asset(
-                    'assets/app_phone.png',
+                    AppStrings.pathAppStore,
                     height: 64,
                     fit: BoxFit.contain,
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      );
-    }
+            );
 
-    Widget whiteSquare() {
-      return AspectRatio(
-        aspectRatio: 1,
-        child: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.all(16),
-          child: Center(
-            child: Text(
-              'Texto do quadrado direito',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.secondary,
-                fontWeight: FontWeight.w600,
+            // Se já temos a altura medida, travamos a mesma para os dois
+            return fixedHeight == null
+                ? content
+                : SizedBox(
+                    width: cardWidth,
+                    height: fixedHeight,
+                    child: content,
+                  );
+          }
+
+          Widget whiteCard({Key? key}) {
+            final content = Container(
+              key: key,
+              width: cardWidth, // width priorizado
+              padding: EdgeInsets.all(innerPad),
+              color: Colors.white,
+              child: Center(
+                child: Text(
+                  AppStrings.homePageWhiteSquare,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-    }
+            );
 
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: isCompact
-          ? Column(children: [blackSquare(), gap, whiteSquare()])
-          : Row(
-              children: [
-                Expanded(child: blackSquare()),
-                gap,
-                Expanded(child: whiteSquare()),
-              ],
-            ),
+            return fixedHeight == null
+                ? content
+                : SizedBox(
+                    width: cardWidth,
+                    height: fixedHeight,
+                    child: content,
+                  );
+          }
+
+          // Layout final com padding externo
+          return Padding(
+            padding: EdgeInsets.all(sectionPad),
+            child: isCompact
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // preto em cima
+                      blackCard(key: _blackKey),
+                      const SizedBox(height: _gap),
+                      // branco embaixo
+                      whiteCard(key: _whiteKey),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      blackCard(key: _blackKey),
+                      const SizedBox(width: _gap),
+                      whiteCard(key: _whiteKey),
+                    ],
+                  ),
+          );
+        },
+      ),
     );
   }
 }
 
-// =====================================================
-// 3) CONTAINER primary final
-//    - Largo: Row centralizada com: [texto à esquerda] [app_phone] [logo_pet]
-//    - < 800: empilha: texto (acima) → app_phone → logo_pet (abaixo)
-//    - Tudo centralizado no container
-// =====================================================
+// class _SquaresSection extends StatelessWidget {
+//   const _SquaresSection({required this.isCompact});
+//   final bool isCompact;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final gap = isCompact
+//         ? const SizedBox(height: 16)
+//         : const SizedBox(width: 16);
+
+//     Widget blackSquare() {
+//       return AspectRatio(
+//         aspectRatio: 1,
+//         child: Container(
+//           color: Colors.black,
+//           padding: const EdgeInsets.all(16),
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Text(
+//                 AppStrings.homePageBlackSquare,
+//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                   color: Colors.white,
+//                   fontWeight: FontWeight.w600,
+//                 ),
+//                 textAlign: TextAlign.center,
+//               ),
+//               const SizedBox(height: 12),
+//               Wrap(
+//                 alignment: WrapAlignment.center,
+//                 spacing: 12,
+//                 runSpacing: 12,
+//                 children: [
+//                   Image.asset(
+//                     AppStrings.pathGooglePlay,
+//                     height: 64,
+//                     fit: BoxFit.contain,
+//                   ),
+//                   Image.asset(
+//                     AppStrings.pathAppStore,
+//                     height: 64,
+//                     fit: BoxFit.contain,
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ),
+//       );
+//     }
+
+//     Widget whiteSquare() {
+//       return AspectRatio(
+//         aspectRatio: 1,
+//         child: Container(
+//           color: Colors.white,
+//           padding: const EdgeInsets.all(16),
+//           child: Center(
+//             child: Text(
+//               AppStrings.homePageWhiteSquare,
+//               style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                 color: AppColors.secondary,
+//                 fontWeight: FontWeight.w600,
+//               ),
+//               textAlign: TextAlign.center,
+//             ),
+//           ),
+//         ),
+//       );
+//     }
+
+//     return Padding(
+//       padding: const EdgeInsets.all(20),
+//       child: isCompact
+//           ? Column(children: [blackSquare(), gap, whiteSquare()])
+//           : Row(
+//               children: [
+//                 Expanded(child: blackSquare()),
+//                 gap,
+//                 Expanded(child: whiteSquare()),
+//               ],
+//             ),
+//     );
+//   }
+// }
+
 class _FinalPrimarySection extends StatelessWidget {
   const _FinalPrimarySection({required this.isCompact});
   final bool isCompact;
@@ -290,50 +388,91 @@ class _FinalPrimarySection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Baixe o app agora',
+                  AppStrings.homePageLTCarousel1,
                   style: titleStyle,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 12),
-                Image.asset(
-                  'assets/app_phone.png',
-                  height: 160,
-                  fit: BoxFit.contain,
+                const SizedBox(height: 24),
+                ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: 400),
+                  child: Image.asset(
+                    AppStrings.homePageImageCarousel1,
+                    height: 160,
+                    fit: BoxFit.contain,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                Image.asset(
-                  'assets/logo_pet.png',
-                  height: 60,
-                  fit: BoxFit.contain,
+                const SizedBox(height: 24),
+                Column(
+                  children: [
+                    Image.asset(
+                      AppStrings.pathLogoPng,
+                      height: 100,
+                      fit: BoxFit.contain,
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      AppStrings.appName.toUpperCase(),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ],
             )
-          : Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center, // centraliza o grupo
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 360),
-                  child: Text(
-                    'Baixe o app agora',
-                    style: titleStyle,
-                    textAlign: TextAlign.left, // texto à esquerda
-                  ),
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        AppStrings.homePageLTCarousel1,
+                        style: titleStyle,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: 400),
+                        child: Image.asset(
+                          AppStrings.homePageImageCarousel1,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            AppStrings.pathLogoPng,
+                            height: 100,
+                            fit: BoxFit.contain,
+                          ),
+                          SizedBox(height: 6),
+                          Text(
+                            AppStrings.appName.toUpperCase(),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 32),
-                Image.asset(
-                  'assets/app_phone.png',
-                  height: 180,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 32),
-                Image.asset(
-                  'assets/logo_pet.png',
-                  height: 72,
-                  fit: BoxFit.contain,
-                ),
-              ],
+              ),
             ),
     );
   }
