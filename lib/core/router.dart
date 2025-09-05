@@ -9,10 +9,8 @@ final GoRouter router = GoRouter(
   initialLocation: '/',
   routes: [
     ShellRoute(
-      builder: (context, state, child) => MainPage(
-        child: child,
-        currentPath: state.matchedLocation, // usado para destacar item ativo
-      ),
+      builder: (context, state, child) =>
+          MainPage(child: child, currentPath: state.matchedLocation),
       routes: [
         GoRoute(
           path: '/',
@@ -25,9 +23,9 @@ final GoRouter router = GoRouter(
           builder: (context, state) => const ContactPage(),
         ),
         GoRoute(
-          path: '/about',
-          name: 'about',
-          builder: (context, state) => const AboutPage(),
+          path: '/privacy',
+          name: 'privacy',
+          builder: (context, state) => const PrivacyPage(),
         ),
       ],
     ),

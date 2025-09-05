@@ -18,7 +18,6 @@ class CustomFloatActionButton extends StatelessWidget {
     final msg = Uri.encodeComponent('Olá estou vindo através do site');
     final uri = Uri.parse('https://wa.me/$phone?text=$msg');
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      // fallback: abre no navegador mesmo
       await launchUrl(uri, mode: LaunchMode.platformDefault);
     }
   }

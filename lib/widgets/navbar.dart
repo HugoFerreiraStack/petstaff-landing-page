@@ -31,8 +31,8 @@ const navItems = <NavItem>[
   ),
   NavItem(
     label: 'Políticas de Privacidade',
-    name: 'about',
-    path: '/about',
+    name: 'privacy',
+    path: '/privacy',
     // icon: Icons.alternate_email,
   ),
 ];
@@ -92,21 +92,17 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: theme.colorScheme.surface,
       surfaceTintColor: Colors.transparent,
 
-      // ——— MODO COMPACTO: ícone de menu + Drawer (sem centralização de itens aqui)
-      automaticallyImplyLeading: isCompact, // mostra o menu quando há Drawer
+      automaticallyImplyLeading: isCompact,
       title: isCompact
           ? const SizedBox.shrink()
-          // ——— MODO LARGO: itens centralizados dentro do title
           : Row(
-              mainAxisSize: MainAxisSize.min, // deixa a linha justa
-              mainAxisAlignment: MainAxisAlignment.spaceAround, // centraliza
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [for (final n in navItems) _buildButton(context, n)],
             ),
       centerTitle: true,
 
-      // Muito importante: não use actions no modo largo, para não "puxar" o centro.
       actions: isCompact ? null : const <Widget>[],
-      // (opcional) garanta que não apareça leading no modo largo:
       leading: isCompact ? null : const SizedBox.shrink(),
     );
   }

@@ -138,11 +138,12 @@ class _ContactPageState extends State<ContactPage> {
   }
 
   void _onSubmit() {
+    // TODO HUGO ENVIAR EMAIL
     FocusScope.of(context).unfocus();
     final ok = _formKey.currentState?.validate() ?? false;
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(ok ? 'Tudo certo!' : 'Verifique os campos'),
         content: Text(
           ok
@@ -151,7 +152,8 @@ class _ContactPageState extends State<ContactPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () =>
+                Navigator.of(dialogContext, rootNavigator: true).pop(),
             child: const Text('OK'),
           ),
         ],
@@ -174,8 +176,8 @@ class _ContactPageState extends State<ContactPage> {
 
             final baseFontSize =
                 Theme.of(context).textTheme.bodyMedium?.fontSize ?? 16;
-            final avgCharW = baseFontSize * 0.6; // ~heurística
-            final innerFieldHPad = 32.0; // padding horizontal dentro do input
+            final avgCharW = baseFontSize * 0.6;
+            final innerFieldHPad = 32.0;
             final charsPerLine = ((formWidth - innerFieldHPad) / avgCharW)
                 .clamp(10, 2000)
                 .floor();
@@ -219,8 +221,7 @@ class _ContactPageState extends State<ContactPage> {
                       ),
                       const SizedBox(height: 8),
                       Align(
-                        alignment:
-                            Alignment.centerLeft, // fica colado à esquerda
+                        alignment: Alignment.centerLeft,
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 500),
                           child: _Input(
@@ -284,7 +285,7 @@ class _ContactPageState extends State<ContactPage> {
                           if (v.length < 1000 && _notifiedLimit) {
                             _notifiedLimit = false;
                           }
-                          setState(() {}); // para atualizar o contador abaixo
+                          setState(() {});
                         },
                         validator: (v) {
                           if (v == null || v.trim().isEmpty)
@@ -296,7 +297,6 @@ class _ContactPageState extends State<ContactPage> {
                         decoration: _inputDecoration('Digite sua mensagem'),
                         style: const TextStyle(color: Colors.black),
                       ),
-                      // contador abaixo, à direita
                       Align(
                         alignment: Alignment.centerRight,
                         child: Text(
@@ -312,10 +312,8 @@ class _ContactPageState extends State<ContactPage> {
 
                       const SizedBox(height: 12),
 
-                      // BOTÃO — ocupa toda a largura disponível (padding 20 já aplicado)
                       Align(
-                        alignment: Alignment
-                            .center, // ou Alignment.center se quiser centralizado
+                        alignment: Alignment.center,
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 400),
                           child: SizedBox(
@@ -327,8 +325,6 @@ class _ContactPageState extends State<ContactPage> {
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 8,
                                 ),
-                                // alternativa equivalente:
-                                // minimumSize: const Size.fromHeight(50),
                               ),
                               child: const Text('Enviar'),
                             ),
@@ -369,7 +365,6 @@ class _ContactPageState extends State<ContactPage> {
   }
 }
 
-// TextFormField padrão (linha única) com fundo branco e texto preto.
 class _Input extends StatelessWidget {
   const _Input({
     required this.controller,

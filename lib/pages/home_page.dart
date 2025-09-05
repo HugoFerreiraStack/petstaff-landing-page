@@ -145,22 +145,18 @@ class _SquaresSectionState extends State<_SquaresSection> {
         builder: (context, c) {
           final bool isCompact = widget.isCompact;
 
-          // Paddings conforme pedido
-          final double sectionPad = isCompact ? 0 : 0; // externo da seção
-          final double innerPad = isCompact ? 30 : 80; // interno de cada card
+          final double sectionPad = isCompact ? 0 : 0;
+          final double innerPad = isCompact ? 30 : 80;
 
-          // largura útil (após o padding externo)
           final double innerWidth = (c.maxWidth - sectionPad * 2).clamp(
             0,
             double.infinity,
           );
 
-          // largura de cada card
           final double cardWidth = isCompact
               ? innerWidth
               : (innerWidth - _gap) / 2;
 
-          // reset de medição quando muda o modo (compact) ou a largura
           if (_lastCardWidth != cardWidth || _lastCompact != isCompact) {
             _lastCardWidth = cardWidth;
             _lastCompact = isCompact;
@@ -168,7 +164,6 @@ class _SquaresSectionState extends State<_SquaresSection> {
             _blackMeasuredH = null;
           }
 
-          // altura alvo: maior entre as duas medidas; na 1ª pintura ainda é null
           final double? fixedHeight =
               (_whiteMeasuredH != null || _blackMeasuredH != null)
               ? [
@@ -277,92 +272,6 @@ class _SquaresSectionState extends State<_SquaresSection> {
     );
   }
 }
-
-// class _SquaresSection extends StatelessWidget {
-//   const _SquaresSection({required this.isCompact});
-//   final bool isCompact;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final gap = isCompact
-//         ? const SizedBox(height: 16)
-//         : const SizedBox(width: 16);
-
-//     Widget blackSquare() {
-//       return AspectRatio(
-//         aspectRatio: 1,
-//         child: Container(
-//           color: Colors.black,
-//           padding: const EdgeInsets.all(16),
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               Text(
-//                 AppStrings.homePageBlackSquare,
-//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                   color: Colors.white,
-//                   fontWeight: FontWeight.w600,
-//                 ),
-//                 textAlign: TextAlign.center,
-//               ),
-//               const SizedBox(height: 12),
-//               Wrap(
-//                 alignment: WrapAlignment.center,
-//                 spacing: 12,
-//                 runSpacing: 12,
-//                 children: [
-//                   Image.asset(
-//                     AppStrings.pathGooglePlay,
-//                     height: 64,
-//                     fit: BoxFit.contain,
-//                   ),
-//                   Image.asset(
-//                     AppStrings.pathAppStore,
-//                     height: 64,
-//                     fit: BoxFit.contain,
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-//       );
-//     }
-
-//     Widget whiteSquare() {
-//       return AspectRatio(
-//         aspectRatio: 1,
-//         child: Container(
-//           color: Colors.white,
-//           padding: const EdgeInsets.all(16),
-//           child: Center(
-//             child: Text(
-//               AppStrings.homePageWhiteSquare,
-//               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                 color: AppColors.secondary,
-//                 fontWeight: FontWeight.w600,
-//               ),
-//               textAlign: TextAlign.center,
-//             ),
-//           ),
-//         ),
-//       );
-//     }
-
-//     return Padding(
-//       padding: const EdgeInsets.all(20),
-//       child: isCompact
-//           ? Column(children: [blackSquare(), gap, whiteSquare()])
-//           : Row(
-//               children: [
-//                 Expanded(child: blackSquare()),
-//                 gap,
-//                 Expanded(child: whiteSquare()),
-//               ],
-//             ),
-//     );
-//   }
-// }
 
 class _FinalPrimarySection extends StatelessWidget {
   const _FinalPrimarySection({required this.isCompact});

@@ -1,67 +1,150 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:landing/core/app_strings.dart';
+import 'package:landing/core/theme/app_colors.dart';
 
-class AboutPage extends StatelessWidget {
-  const AboutPage({super.key});
+class PrivacyPage extends StatelessWidget {
+  const PrivacyPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sobre o PetStaff'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, c) {
+        final isCompact = c.maxWidth < 800;
+        final hPad = isCompact ? 50.0 : 120.0;
+
+        return Scaffold(
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: c.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Topo preto com título (h=100)
+                      Container(
+                        height: 100,
+                        color: Colors.black,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'Políticas de Privacidade Pet Staff',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                      ),
+
+                      // Texto principal (padding 24v / 120h ou 50h)
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 24,
+                          horizontal: hPad,
+                        ),
+                        child: const _PrivacyText(),
+                      ),
+
+                      const Spacer(),
+
+                      _Footer(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Footer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        color: AppColors.primary,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
           children: [
-            const Icon(
-              Icons.info,
-              size: 64,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Sobre o PetStaff',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+            // Esquerda
+            Expanded(
+              child: Text(
+                'CODIFYPRO',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'O PetStaff é uma plataforma inovadora desenvolvida para facilitar a gestão e cuidado dos seus animais de estimação.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Nossos recursos incluem:',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text('• Agendamento de consultas veterinárias'),
-            const Text('• Controle de vacinas e medicamentos'),
-            const Text('• Histórico médico completo'),
-            const Text('• Lembretes personalizados'),
-            const Text('• Comunicação com veterinários'),
-            const SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
-                onPressed: () => context.go('/contact'),
-                child: const Text('Entre em contato'),
-              ),
+            // Direita
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'PET STAFF',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Image.asset(
+                  AppStrings.pathLogoPng,
+                  height: 60,
+                  fit: BoxFit.contain,
+                ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PrivacyText extends StatelessWidget {
+  const _PrivacyText();
+
+  @override
+  Widget build(BuildContext context) {
+    // Todo conteúdo real da política
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text('Introdução', style: TextStyle(fontWeight: FontWeight.w700)),
+        SizedBox(height: 8),
+        Text(
+          'Esta Política de Privacidade descreve como coletamos, usamos e protegemos seus dados no Pet Staff.',
+        ),
+        SizedBox(height: 16),
+        Text('Coleta de Dados', style: TextStyle(fontWeight: FontWeight.w700)),
+        SizedBox(height: 8),
+        Text(
+          'Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.Podemos coletar informações fornecidas por você e dados técnicos de uso para melhorar nossos serviços.',
+        ),
+        SizedBox(height: 16),
+        Text('Uso de Dados', style: TextStyle(fontWeight: FontWeight.w700)),
+        SizedBox(height: 8),
+        Text(
+          'Usamos os dados para operação do aplicativo, suporte ao cliente e melhorias de produto.',
+        ),
+        SizedBox(height: 16),
+        Text('Seus Direitos', style: TextStyle(fontWeight: FontWeight.w700)),
+        SizedBox(height: 8),
+
+        SizedBox(height: 16),
+        Text('Contato', style: TextStyle(fontWeight: FontWeight.w700)),
+        SizedBox(height: 8),
+        Text('Em caso de dúvidas, entre em contato com nosso suporte.'),
+        SizedBox(height: 24),
+      ],
     );
   }
 }
