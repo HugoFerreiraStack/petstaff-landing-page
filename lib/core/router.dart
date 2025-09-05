@@ -20,14 +20,14 @@ final GoRouter router = GoRouter(
           builder: (context, state) => const HomePage(),
         ),
         GoRoute(
-          path: '/about',
-          name: 'about',
-          builder: (context, state) => const AboutPage(),
-        ),
-        GoRoute(
           path: '/contact',
           name: 'contact',
           builder: (context, state) => const ContactPage(),
+        ),
+        GoRoute(
+          path: '/about',
+          name: 'about',
+          builder: (context, state) => const AboutPage(),
         ),
       ],
     ),

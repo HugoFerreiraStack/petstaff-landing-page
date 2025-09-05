@@ -25,14 +25,14 @@ const navItems = <NavItem>[
   ),
   NavItem(
     label: 'Entre em Contato',
-    name: 'about',
-    path: '/about',
+    name: 'contact',
+    path: '/contact',
     // icon: Icons.info_outline,
   ),
   NavItem(
     label: 'Políticas de Privacidade',
-    name: 'contact',
-    path: '/contact',
+    name: 'about',
+    path: '/about',
     // icon: Icons.alternate_email,
   ),
 ];
@@ -111,78 +111,6 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-
-// class NavBar extends StatelessWidget implements PreferredSizeWidget {
-//   const NavBar({
-//     super.key,
-//     required this.currentPath,
-//     required this.isCompact,
-//     this.height = kToolbarHeight,
-//   });
-
-//   final String currentPath;
-//   final bool isCompact;
-//   final double height;
-
-//   @override
-//   Size get preferredSize => Size.fromHeight(height);
-
-//   bool _isSelected(String loc, String path) {
-//     if (path == '/') return loc == '/';
-//     return loc == path || loc.startsWith('$path/');
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     Widget buildAction(NavItem item) {
-//       final selected = _isSelected(currentPath, item.path);
-//       final label = Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           // Icon(item.icon, size: 18),
-//           // const SizedBox(width: 8),
-//           Text(item.label),
-//         ],
-//       );
-//       return Padding(
-//         padding: const EdgeInsets.symmetric(horizontal: 4),
-//         child: selected
-//             ? FilledButton.tonal(
-//                 onPressed: () {},
-//                 child: label,
-//               ) // já está na rota
-//             : TextButton(
-//                 onPressed: () => context.goNamed(item.name),
-//                 child: label,
-//               ),
-//       );
-//     }
-
-//     return AppBar(
-//       // title: const Text('Meu Site'),
-//       backgroundColor: Colors.white,
-//       surfaceTintColor: Colors.transparent,
-//       // Quando tem Drawer e isCompact=true, mostramos o ícone de menu
-//       automaticallyImplyLeading: isCompact,
-//       // Se preferir controlar manualmente o botão de menu, use "leading" abaixo:
-//       // leading: isCompact
-//       //     ? Builder(
-//       //         builder: (context) => IconButton(
-//       //           icon: const Icon(Icons.menu),
-//       //           onPressed: () => Scaffold.of(context).openDrawer(),
-//       //         ),
-//       //       )
-//       //     : null,
-//       actions: isCompact
-//           ? null // sem actions; navegação vai pelo Drawer
-//           : [
-//               for (final item in navItems) buildAction(item),
-//               const SizedBox(width: 8),
-//             ],
-//     );
-//   }
-// }
 
 // DRAWER: aparece no modo compacto e lista as rotas
 class AppDrawer extends StatelessWidget {
