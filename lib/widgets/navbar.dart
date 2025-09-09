@@ -30,6 +30,12 @@ const navItems = <NavItem>[
     // icon: Icons.info_outline,
   ),
   NavItem(
+    label: 'Seja um Profissional',
+    name: 'professional-registration',
+    path: '/professional-registration',
+    // icon: Icons.person_add,
+  ),
+  NavItem(
     label: 'Políticas de Privacidade',
     name: 'privacy',
     path: '/privacy',

@@ -4,13 +4,14 @@ import 'package:landing/pages/main_page.dart';
 import '../pages/home_page.dart';
 import '../pages/about_page.dart';
 import '../pages/contact_page.dart';
+import '../pages/professional_registration_page.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/',
   routes: [
     ShellRoute(
       builder: (context, state, child) =>
-          MainPage(child: child, currentPath: state.matchedLocation),
+          MainPage(currentPath: state.matchedLocation, child: child),
       routes: [
         GoRoute(
           path: '/',
@@ -21,6 +22,11 @@ final GoRouter router = GoRouter(
           path: '/contact',
           name: 'contact',
           builder: (context, state) => const ContactPage(),
+        ),
+        GoRoute(
+          path: '/professional-registration',
+          name: 'professional-registration',
+          builder: (context, state) => const ProfessionalRegistrationPage(),
         ),
         GoRoute(
           path: '/privacy',

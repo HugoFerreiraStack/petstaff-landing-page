@@ -102,9 +102,12 @@
 //   }
 // }
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:landing/widgets/float_action_button.dart';
+import 'package:emailjs/emailjs.dart' as emailjs;
 
 class ContactPage extends StatefulWidget {
   const ContactPage({super.key});
@@ -121,6 +124,21 @@ class _ContactPageState extends State<ContactPage> {
   final _descCtrl = TextEditingController();
 
   bool _notifiedLimit = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeEmailJS();
+  }
+
+  void _initializeEmailJS() {
+    // Configuração global do EmailJS (opcional, mas recomendado)
+    emailjs.init(const emailjs.Options(
+      publicKey: 'msPJ93QWu5VsWtWai',
+      // privateKey: 'YOUR_PRIVATE_KEY', // Adicione se tiver
+    ));
+  }
 
   @override
   void dispose() {
@@ -137,28 +155,103 @@ class _ContactPageState extends State<ContactPage> {
     return re.hasMatch(email);
   }
 
+  Future<void> _sendEmail() async {
+    if (_isLoading) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final email = _emailCtrl.text.trim();
+      final subject = _subjectCtrl.text.trim();
+      final description = _descCtrl.text.trim();
+
+      // Dados do template do EmailJS - usando apenas parâmetros básicos
+      final templateParams = {
+        'from_name': email,
+        'from_email': email,
+        'subject': subject,
+        'message': description,
+      };
+
+      log('Enviando email com parâmetros: $templateParams');
+      log('Service ID: service_hg2cs4v');
+      log('Template ID: template_s1ko309');
+
+      // Enviar email usando EmailJS
+      final result = await emailjs.send(
+        'service_hg2cs4v', // Service ID
+        'template_s1ko309', // Template ID
+        templateParams,
+        const emailjs.Options(
+          publicKey: 'msPJ93QWu5VsWtWai',
+          privateKey: 'EYeq-fV3nC5AIpcaOFdKw',
+        ),
+      );
+      
+      log('Resultado do envio: $result');
+
+      if (mounted) {
+        // Mostrar sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email enviado com sucesso!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+
+        // Limpar formulário
+        _emailCtrl.clear();
+        _subjectCtrl.clear();
+        _descCtrl.clear();
+        _notifiedLimit = false;
+      }
+    } catch (e) {
+      if (mounted) {
+        log(e.toString());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao enviar email: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   void _onSubmit() {
-    // TODO HUGO ENVIAR EMAIL
     FocusScope.of(context).unfocus();
     final ok = _formKey.currentState?.validate() ?? false;
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(ok ? 'Tudo certo!' : 'Verifique os campos'),
-        content: Text(
-          ok
-              ? 'Validação ok. (Envio de e-mail desativado por enquanto.)'
-              : 'Você precisa preencher corretamente todos os campos para continuar.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () =>
-                Navigator.of(dialogContext, rootNavigator: true).pop(),
-            child: const Text('OK'),
+    
+    if (ok) {
+      _sendEmail();
+    } else {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Verifique os campos'),
+          content: const Text(
+            'Você precisa preencher corretamente todos os campos para continuar.',
           ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext, rootNavigator: true).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -170,45 +263,49 @@ class _ContactPageState extends State<ContactPage> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, c) {
-            const screenPad = 50.0;
-            final maxW = c.maxWidth;
-            final formWidth = maxW - screenPad * 2;
+            final isCompact = c.maxWidth < 768;
+            final screenPad = isCompact ? 20.0 : 50.0;
+            final maxWidth = isCompact ? c.maxWidth : 800.0;
 
             final baseFontSize =
                 Theme.of(context).textTheme.bodyMedium?.fontSize ?? 16;
             final avgCharW = baseFontSize * 0.6;
             final innerFieldHPad = 32.0;
-            final charsPerLine = ((formWidth - innerFieldHPad) / avgCharW)
+            final charsPerLine = ((maxWidth - innerFieldHPad) / avgCharW)
                 .clamp(10, 2000)
                 .floor();
             final neededLines = (1000 / charsPerLine).ceil();
             final descLines = neededLines.clamp(6, 24);
 
-            final titleStyle = const TextStyle(
-              fontSize: 40,
+            final titleStyle = TextStyle(
+              fontSize: isCompact ? 28 : 40,
               fontWeight: FontWeight.w800,
               color: Colors.white,
             );
             const labelStyle = TextStyle(color: Colors.white);
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(screenPad),
-              child: DefaultTextStyle.merge(
-                style: const TextStyle(color: Colors.white),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+              padding: EdgeInsets.all(screenPad),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxWidth),
+                  child: DefaultTextStyle.merge(
+                    style: const TextStyle(color: Colors.white),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                       Text('Entre em contato!', style: titleStyle),
                       const SizedBox(height: 8),
                       Text(
                         'Envie uma mensagem e entraremos em contato o mais breve',
                         style: TextStyle(
-                          fontSize: 30,
+                          fontSize: isCompact ? 18 : 24,
                           fontWeight: FontWeight.w200,
                           color: Colors.white,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
                       const Divider(color: Colors.white24, thickness: 1),
@@ -220,43 +317,32 @@ class _ContactPageState extends State<ContactPage> {
                         style: labelStyle,
                       ),
                       const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 500),
-                          child: _Input(
-                            controller: _emailCtrl,
-                            hintText: 'voce@exemplo.com',
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty)
-                                return 'Informe seu e-mail';
-                              if (!_isValidEmail(v)) return 'E-mail inválido';
-                              return null;
-                            },
-                          ),
-                        ),
+                      _Input(
+                        controller: _emailCtrl,
+                        hintText: 'voce@exemplo.com',
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'Informe seu e-mail';
+                          }
+                          if (!_isValidEmail(v)) return 'E-mail inválido';
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 20),
 
                       // MOTIVO / ASSUNTO
                       const Text('Motivo do contato', style: labelStyle),
                       const SizedBox(height: 8),
-
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 500),
-                          child: _Input(
-                            controller: _subjectCtrl,
-                            hintText: 'Assunto do e-mail',
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty)
-                                return 'Informe o motivo/assunto';
-                              return null;
-                            },
-                          ),
-                        ),
+                      _Input(
+                        controller: _subjectCtrl,
+                        hintText: 'Assunto do e-mail',
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'Informe o motivo/assunto';
+                          }
+                          return null;
+                        },
                       ),
 
                       const SizedBox(height: 20),
@@ -288,10 +374,12 @@ class _ContactPageState extends State<ContactPage> {
                           setState(() {});
                         },
                         validator: (v) {
-                          if (v == null || v.trim().isEmpty)
+                          if (v == null || v.trim().isEmpty) {
                             return 'Descreva sua necessidade';
-                          if (v.length > 1000)
+                          }
+                          if (v.length > 1000) {
                             return 'Máximo de 1000 caracteres';
+                          }
                           return null;
                         },
                         decoration: _inputDecoration('Digite sua mensagem'),
@@ -312,27 +400,30 @@ class _ContactPageState extends State<ContactPage> {
 
                       const SizedBox(height: 12),
 
-                      Align(
-                        alignment: Alignment.center,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          child: SizedBox(
-                            width: double.infinity, // ocupa até o limite (200)
-                            height: 50,
-                            child: FilledButton(
-                              onPressed: _onSubmit,
-                              style: FilledButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                ),
-                              ),
-                              child: const Text('Enviar'),
-                            ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: FilledButton(
+                          onPressed: _isLoading ? null : _onSubmit,
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : const Text('Enviar'),
                         ),
                       ),
                       const SizedBox(height: 40),
-                    ],
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

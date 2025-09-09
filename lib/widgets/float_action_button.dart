@@ -14,7 +14,7 @@ class CustomFloatActionButton extends StatelessWidget {
   }
 
   Future<void> _openWhatsApp() async {
-    const phone = '5511970269211';
+    const phone = '5511999163774';
     final msg = Uri.encodeComponent('Olá estou vindo através do site');
     final uri = Uri.parse('https://wa.me/$phone?text=$msg');
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
