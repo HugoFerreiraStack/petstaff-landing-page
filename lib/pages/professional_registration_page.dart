@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:landing/widgets/float_action_button.dart';
 import 'package:emailjs/emailjs.dart' as emailjs;
 
